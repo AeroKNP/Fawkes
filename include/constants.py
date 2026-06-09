@@ -1,3 +1,5 @@
+# Contains constants either of enviornment or parameters of rockets which will be used during the simulation
+
 g_surface=9.7803
 rho_surface=1.225
 Cd=0.8

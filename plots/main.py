@@ -3,7 +3,7 @@ import pandas as pd
 import plotter
 
 # Reading the data from the CSV File
-df=pd.read_csv("data/trajectory.csv")
+df=pd.read_csv("data/t.csv")
 
 # Creating the arrays
 t=df["Time"].to_numpy()
@@ -19,8 +19,12 @@ psi=df["Psi"].to_numpy()
 p=df["P"].to_numpy()
 q=df["Q"].to_numpy()
 r=df["R"].to_numpy()
+xtarget=df["X_Target"].to_numpy()
+ytarget=df["Y_Target"].to_numpy()
+ztarget=df["Z_Target"].to_numpy()
 
 # Plotting the graphs
-fig,ax=plt.subplots(2,2,figsize=(12,14))
-plotter.plot_rotational(ax,t,phi,theta,psi)
+fig=plt.figure(figsize=(12,14))
+ax=fig.add_subplot(111,projection="3d")
+plotter.plot_3D_intercept(ax,x,y,z,xtarget,ytarget,ztarget)
 plt.show()

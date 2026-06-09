@@ -2,6 +2,7 @@ import numpy as np
 from include import constants as cons
 from include.state import State
 
+# Getting the drag on the body
 def drag(t,state):
     vx=state.vx
     vy=state.vy
