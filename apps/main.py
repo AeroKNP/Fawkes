@@ -3,7 +3,10 @@ import numpy as np
 from include.state import State
 from include.integrators import rk4_step
 from include.target import run_target
+from include import thruster
+from include.cascade import Cascade
 from src.dynamics import derivatives
+from src.controller import contorller_output
 from include import logger
 
 
@@ -16,6 +19,17 @@ dt=0.001
 # Initialising the variables for target object 
 target_state=np.array([100.0,0.0,70.0,0.0,20.0,0.0])
 prev_target_state=target_state.copy()
+
+# Initialising the drone motors 
+motors=thruster.initialise_drone(0.2,1.5e-5,3e-7,8000)
+
+# Initialising the Cascade Controller
+cascadeController=Cascade(np.array([
+    [4.0,4.0,4.0],
+    [8.0,8.0,8.0],
+    [0.5,0.5,0.5],
+    [0.1,0.1,0.1]
+]),0.5)
 
 # Initialising the csv file to store data 
 filename=input("Enter the filename to store the simulation data(without extension): ")
@@ -30,8 +44,11 @@ while t<t_final:
     prev_target_state=target_state.copy()
     target_state=run_target(t,prev_target_state,dt).copy()
 
+    # Getting the RPMs from the controller based on the relative target location
+    RPMs=contorller_output(t,state,[target_state,prev_target_state,dt,motors,cascadeController])
+
     # Updating fawkes and appending the data
-    state=rk4_step(state,t,dt,derivatives,[target_state,prev_target_state,dt])
+    state=rk4_step(state,t,dt,derivatives,[RPMs,motors])
     t+=dt
     logger.log_state(writer,t,state,target_state)
 
