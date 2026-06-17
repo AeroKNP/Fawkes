@@ -1,12 +1,42 @@
 import numpy as np
+from include import constants as cons
 from include.state import State
 
 # Constant
 N=10.0
-den_min=1.0
 
-# Calculates the required accelerations to pursuit
-def guidance(t,state,extra_paras):
+# Check the current mission phase and call the respective guidance function
+def guidance(mission_phase,t,state,extra_paras):
+    if mission_phase=="prop_nav":
+        return prop_nav_guidance(t,state,extra_paras)
+    elif mission_phase=="rise":
+        return lift_off_guidance(t,state,extra_paras)
+    elif mission_phase=="pure_pursuit":
+        return pure_pursuit_guidance(t,state,extra_paras)
+
+# Guidance function for lift off phase
+def lift_off_guidance(t,state,extra_paras):
+    return State([0.0,0.0,0.0,0.0,0.0,2.0,0.0,0.0,0.0,0.0,0.0,0.0])
+
+# Guidance function for pure pursuit phase
+def pure_pursuit_guidance(t,state,extra_paras):
+    amag=2.0
+
+    target_state=extra_paras[0]
+    rT=np.array([target_state[0],target_state[1],target_state[2]])
+    rM=np.array([state.x,state.y,state.z])
+    rTM=rT-rM
+
+    rhat=rTM/np.linalg.norm(rTM)
+
+    dvxdt=amag*rhat[0]
+    dvydt=amag*rhat[1]
+    dvzdt=amag*rhat[2]
+
+    return State([0.0,0.0,0.0,dvxdt,dvydt,dvzdt,0.0,0.0,0.0,0.0,0.0,0.0])
+
+# Guidance function for proportional navigation
+def prop_nav_guidance(t,state,extra_paras):
     # Unpacking the extra paras
     target_state=extra_paras[0]
     prev_target_state=extra_paras[1]
@@ -27,16 +57,16 @@ def guidance(t,state,extra_paras):
 
     # Getting lambda dot xy, xz and yz in this order
     LOS_dot=np.array([
-        ((rTM[0]*vTM[1]-rTM[1]*vTM[0])/max((rTM[0]**2+rTM[1]**2),den_min)),
-        ((rTM[0]*vTM[2]-rTM[2]*vTM[0])/max((rTM[0]**2+rTM[2]**2),den_min)),
-        ((rTM[1]*vTM[2]-rTM[2]*vTM[1])/max((rTM[1]**2+rTM[2]**2),den_min))
+        ((rTM[0]*vTM[1]-rTM[1]*vTM[0])/max((rTM[0]**2+rTM[1]**2),cons.den_min)),
+        ((rTM[0]*vTM[2]-rTM[2]*vTM[0])/max((rTM[0]**2+rTM[2]**2),cons.den_min)),
+        ((rTM[1]*vTM[2]-rTM[2]*vTM[1])/max((rTM[1]**2+rTM[2]**2),cons.den_min))
     ])
 
     # Getting the closing velocity in xy, xz and yz planes
     vC=np.array([
-        -((rTM[0]*vTM[0]+rTM[1]*vTM[1])/max(np.sqrt(rTM[0]**2+rTM[1]**2),den_min)),
-        -((rTM[0]*vTM[0]+rTM[2]*vTM[2])/max(np.sqrt(rTM[0]**2+rTM[2]**2),den_min)),
-        -((rTM[1]*vTM[1]+rTM[2]*vTM[2])/max(np.sqrt(rTM[1]**2+rTM[2]**2),den_min))
+        -((rTM[0]*vTM[0]+rTM[1]*vTM[1])/max(np.sqrt(rTM[0]**2+rTM[1]**2),cons.den_min)),
+        -((rTM[0]*vTM[0]+rTM[2]*vTM[2])/max(np.sqrt(rTM[0]**2+rTM[2]**2),cons.den_min)),
+        -((rTM[1]*vTM[1]+rTM[2]*vTM[2])/max(np.sqrt(rTM[1]**2+rTM[2]**2),cons.den_min))
     ])
 
     # Getting the command accelerations for xy, xz and yz planes
@@ -51,54 +81,3 @@ def guidance(t,state,extra_paras):
     dvzdt=nC[1]*np.cos(LOS[1])+nC[2]*np.cos(LOS[2])
 
     return State([0.0,0.0,0.0,dvxdt,dvydt,dvzdt,0.0,0.0,0.0,0.0,0.0,0.0])
-
-# import numpy as np
-# from include.state import State
-
-# # Constant
-# N = 10.0
-# den_min = 1.0
-
-# def guidance(t,state,extra_paras):
-
-#     # Unpacking
-#     target_state = extra_paras[0]
-#     prev_target_state = extra_paras[1]
-#     dt = extra_paras[2]
-
-#     # Target and missile states
-#     rT = target_state[0:3]
-#     vT = (rT - prev_target_state[0:3]) / dt
-
-#     rM = np.array([state.x,state.y,state.z])
-#     vM = np.array([state.vx,state.vy,state.vz])
-
-#     # Relative quantities
-#     rTM = rT - rM
-#     vTM = vT - vM
-
-#     R = np.linalg.norm(rTM)
-
-#     if R < den_min:
-#         return State([0.0]*12)
-
-#     # LOS unit vector
-#     r_hat = rTM / R
-
-#     # Closing velocity
-#     Vc = -np.dot(rTM, vTM) / R
-
-#     # LOS angular rate vector
-#     omega_LOS = np.cross(rTM, vTM) / (R**2)
-
-#     # 3D PN acceleration command
-#     a_cmd = N * Vc * np.cross(omega_LOS, r_hat)
-
-#     return State([
-#         0.0,0.0,0.0,
-#         a_cmd[0],
-#         a_cmd[1],
-#         a_cmd[2],
-#         0.0,0.0,0.0,
-#         0.0,0.0,0.0
-#     ])

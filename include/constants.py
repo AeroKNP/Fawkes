@@ -9,6 +9,7 @@ mass=2
 Ixx=0.022
 Iyy=0.022
 Izz=0.040
+den_min=1e-6
 
 # Converts any array from body frame to global frame
 def body_to_global_matrix(phi,theta,psi):

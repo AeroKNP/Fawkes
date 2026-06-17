@@ -1,4 +1,5 @@
 import csv
+from pathlib import Path
 import numpy as np
 from include.state import State
 from include.integrators import rk4_step
@@ -9,15 +10,14 @@ from src.dynamics import derivatives
 from src.controller import contorller_output
 from include import logger
 
-
 # Initialising the state variable
-state=State([0.0,0.0,0.0,5.0,5.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0])
+state=State([0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0])
 t=0.0
 t_final=1000.0
 dt=0.01
 
 # Initialising the variables for target object 
-target_state=np.array([100.0,100.0,1.0,0.0,0.0,0.0])
+target_state=np.array([80.0,70.0,3.0,0.0,0.0,0.0])
 prev_target_state=target_state.copy()
 
 # Initialising the drone motors 
@@ -25,14 +25,15 @@ motors=thruster.initialise_drone(0.2,2.5e-7,5e-9,8000)
 
 # Initialising the Cascade Controller
 cascadeController=Cascade(np.array([
-    [0.12,0.12,0.12],#0.04
-    [2.0,2.0,2.0],#1.6
-    [0.01,0.01,0.01],#0.01
-    [0.02,0.02,0.02]#0.02
-]),np.array([0.1,0.1,0.1]))#0.02
+    [0.12,0.12,0.12],
+    [2.0,2.0,2.0],
+    [0.01,0.01,0.01],
+    [0.02,0.02,0.02]
+]),np.array([0.1,0.1,0.1]))
 
 # Initialising the csv file to store data 
-filename=input("Enter the filename to store the simulation data(without extension): ")
+Path("data").mkdir(exist_ok=True)
+filename=input("Enter the filename to store the simulation data (without extension): ")
 file=open(f"data/{filename}.csv","w",newline="")
 writer=csv.writer(file)
 logger.init_file(writer)

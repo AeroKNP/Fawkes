@@ -26,6 +26,7 @@ results/
  
 # Plots output
 plots/__pycache__/
+plots/*.png
  
 # IDE
 .vscode/
