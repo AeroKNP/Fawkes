@@ -10,8 +10,8 @@
 
 inline void logger_init(std::ofstream& file,std::string filename){
 
-    std::filesystem::create_directories("data");
-    filename="data/"+filename+".csv";
+    std::filesystem::create_directories("results");
+    filename="results/"+filename+".csv";
     file.open(filename);
 
     if (!file.is_open())

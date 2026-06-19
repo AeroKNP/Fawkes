@@ -12,7 +12,7 @@ string phase = "IDLE";
 array<double,4> controllerOutput(double t, const State& state, const targetParas& target,const MotorSet& motors,Cascade& cascadeController){
 
     // Updating the mission phase based on the current state and target state
-    updateMissionPhase(state,target.targetState);
+    updateMissionPhase(state,target);
 
     // Getting the net acceleration required in the global frame
     State reqStateDeri = guidance(phase,t,state,target)-gravity()-drag(t,state,rhoSurface,CdTrue,AreaTrue);

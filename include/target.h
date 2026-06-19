@@ -1,6 +1,7 @@
 // This file contains the dyanmics of the target used in this simulation
 #pragma once
 #include "state.h"
+#include "Vector3.h"
 
 State targetDerivatives(double,const State&);
 void runTarget(double,State&,double);

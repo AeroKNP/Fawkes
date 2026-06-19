@@ -6,6 +6,7 @@
 #include "target.h"
 #include "thruster.h"
 #include "cascade.h"
+#include "Vector3.h"
 
 std::array<double,4> controllerOutput(double,const State&,const targetParas&,const MotorSet&,Cascade&);
-void updateMissionPhase(const State&,const Vector3&);
+void updateMissionPhase(const State&,const targetParas&);

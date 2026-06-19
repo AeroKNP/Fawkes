@@ -22,6 +22,7 @@ fawkes
  
 # Data output
 data/*.csv
+results/*.csv
 results/
  
 # Plots output
